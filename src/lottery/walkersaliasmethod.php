@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Lottery;
+
 class WalkersAliasMethod
 {
     private $elements = [];

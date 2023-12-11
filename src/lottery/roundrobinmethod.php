@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Lottery;
+
 class RoundRobinMethod
 {
     private $elements = [];
