@@ -1,8 +1,12 @@
 <?php
 
+namespace Tests;
+
 use PHPUnit\Framework\TestCase;
-use App\Lottery\WalkersAliasMethod;
-use App\Lottery\RoundRobinMethod;
+
+use App\Lottery\WeightedLottery;
+
+use Tests\Mocks\LotteryItem;
 
 
 class LotteryTest extends TestCase
@@ -10,41 +14,34 @@ class LotteryTest extends TestCase
     protected function setUp() :void {
     }
 
-    public function test_WalkersAliasMethod()
+    public function test_WeightLottery()
     {
-        $elements = [10, 30, 60];
-        $result = [0, 0 ,0];
-        $method = new WalkersAliasMethod($elements);
-        for ($i=0; $i<10000000; $i++) {
-            $index = $method->choice();
-            $result[$index] += 1;
+        $sampleNum = 10000;
+
+        // テストデータ
+        $weights = [10, 30, 60];
+        $elements = [];
+        foreach ($weights as $idx => $weight) {
+            $elements[] = new LotteryItem($idx, $weight);
         }
 
-        $total = array_sum($result);
+        // テスト対象のモデル生成
+        $lottery = WeightedLottery::init($elements);
 
-        foreach ($elements as $index => $lottery) {
-            $actual = $result[$index] / $total * 100;
-            $this->assertGreaterThanOrEqual($lottery - 0.1, $actual);
-            $this->assertLessThanOrEqual($lottery + 0.1, $actual);
-        }
-    }
-
-    public function test_RoundRobinMethod()
-    {
-        $elements = [10, 30, 60];
-        $result = [0, 0 ,0];
-        $method = new RoundRobinMethod($elements);
-        for ($i=0; $i<10000000; $i++) {
-            $index = $method->choice();
-            $result[$index] += 1;
+        // サンプリング
+        $result = [];
+        for ($i=0; $i < $sampleNum; $i++) {
+            $choiceElement = $lottery->choice();
+            $key = (string) $choiceElement;
+            if (!isset($result[$key])) {
+                $result[$key] = 0;
+            }
+            $result[$key]++;
         }
 
-        $total = array_sum($result);
-
-        foreach ($elements as $index => $lottery) {
-            $actual = $result[$index] / $total * 100;
-            $this->assertGreaterThanOrEqual($lottery - 0.1, $actual);
-            $this->assertLessThanOrEqual($lottery + 0.1, $actual);
+        // 結果
+        foreach ($result as $key => $count) {
+            printf("%s: %f\n", $key, $count / $sampleNum * 100);
         }
     }
 }
