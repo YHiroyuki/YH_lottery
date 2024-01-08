@@ -22,6 +22,11 @@ class LotteryItem implements WeightedInterface
         return $this->weight;
     }
 
+    public function getId()
+    {
+        return $this->id;
+    } 
+
     public function __toString()
     {
         return sprintf("ID: %d (%d)", $this->id, $this->weight);
